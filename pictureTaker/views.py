@@ -70,9 +70,8 @@ def gen(camera):
               b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n\r\n')
 
 
-#@gzip
 def livefeed(request):
-    #sudo service nvargus-daemon restart#Needs to be executed to be sure to restart the video daemon
+    #sudo service nvargus-daemon restart#TODO Needs to be executed to be sure to restart the video daemon
 
     stream = StreamingHttpResponse(gen(VideoCamera()), content_type="multipart/x-mixed-replace;boundary=frame")
     if not (stream == None):
@@ -107,6 +106,10 @@ def PictureTakerView(request):
             return response
 
         #TODO 
+    if(request.POST.get('bt_livefeed')):
+        response = redirect('/livefeed/')
+        return response
+
     if(request.POST.get('bt_delLearningCats')):
         print(request.POST)
         try :

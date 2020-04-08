@@ -10,17 +10,32 @@
 <body>
         {{  page }}
 
+        <form action=# method="post" target="_blank">
+        {% csrf_token %}
+        <div>Please check through this link that the camera view can capture everything : </div>
+        <input type="submit" class="btn" value="Camera feed" name="bt_livefeed">
+        </form>
+
+        <p></p>
+        <p></p>
+        <p></p>
+
+
         <form action=# method="post">
         {% csrf_token %}
-        <d>Please input the number of categories you would like to classify. Add a category </d>
+        <div>Please input below the name of the cateogries to predict : </div>
         <p>
         <input type="text" value="" name="tb_LearningCats" size="1"/>
-        <input type="submit" class="btn" value="Add" name="bt_addLearningCats">
-        <input type="submit" class="btn" value="Delete" name="bt_delLearningCats">
-
+        <div>
+        <input type="submit" class="btn" value="Add category" name="bt_addLearningCats">
+        <input type="submit" class="btn" value="Delete category" name="bt_delLearningCats">
+        </div>
 </p>
          {% for item in liste %}
-                <p><input type="submit" class="btn" name="dynButton" value={{item.name}}>newText</p>
+         <p>
+                <d>Category :</d> 
+                <d><input type="submit" class="btn" name="dynButton" value={{item.name}}></d>
+        </p>
         {% endfor %}
 
        
