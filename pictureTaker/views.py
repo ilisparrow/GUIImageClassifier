@@ -61,6 +61,8 @@ class VideoCamera(object):
 
 
 cam = VideoCamera()
+recordTime = str(3)
+
 
 
 def gen(camera):
@@ -109,9 +111,7 @@ def PictureTakerView(request):
     if(request.POST.get('bt_livefeed')):
         response = redirect('/livefeed/')
         return response
-
     if(request.POST.get('bt_delLearningCats')):
-        print(request.POST)
         try :
             nameCat = request.POST.get('tb_LearningCats')
             CatLearning.objects.filter(name=nameCat).delete()
@@ -119,15 +119,24 @@ def PictureTakerView(request):
             Print("Error")
     for item in ls : 
         if(request.POST.get("dynButton")==item.name):
-            #TODO inside the dynamic button event
-            proc = Popen(['mkdir',"./pictures/"+item.name])
-            #try : 
-                #os.mkdir((os.path.join("./",item.name)))
-            #    os.mkdir((os.path.join("/home","svision","webInterface","conf","pictures",item.name)))
-            #except :
-            #    print("ERROR: Couldn't create folder")
-            #print(proc)
-            print(item.name)
+            #TODO Inside the dyn btn, Todo  : ADD fodler and record
+            CatLearning.objects.filter(name=item.name)
+            proc = Popen(['mkdir','./pictures/'+str(item.name)])
+
+            print(proc)
+            response = redirect('/pictureTaker/')
+            return response
+
+        if(request.POST.get(item.name)):
+            try :
+                CatLearning.objects.filter(name=item.name).delete()
+                response = redirect('/pictureTaker/')
+                return response
+
+            except : 
+                Print("Error could not delete category")
+            
+
 
     return render(request, "pictureTaker.html",context)
 
