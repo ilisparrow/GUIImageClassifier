@@ -4,6 +4,7 @@ from __future__ import unicode_literals
 from django.shortcuts import render,redirect
 from .models import PictureTaker
 from .models import CatLearning
+from .models import State
 from subprocess import run,PIPE,Popen
 from os.path import dirname, basename, isfile, join
 import cv2 as cv2
@@ -12,7 +13,7 @@ from django.views.decorators.http import require_http_methods
 from django.views.decorators import gzip
 from django.http import StreamingHttpResponse
 from django.http import HttpResponse 
-
+import math
 
 
 
@@ -21,7 +22,7 @@ def gstreamer_pipeline(
     capture_height=720,
     display_width=1280,
     display_height=720,
-    framerate=60,
+    framerate=30,
     flip_method=0,
 ):
     return (
@@ -55,22 +56,35 @@ class VideoCamera(object):
         ret, jpeg = cv2.imencode('.jpg', image)
         return jpeg.tobytes()
 
+    def get_jpg(self):
+        image = self.frame
+        ret, jpg = cv2.imencode('.jpg', image)
+        return image#Was jpg 
+
     def update(self):
         while True:
             (self.grabbed, self.frame) = self.video.read()
 
 
 cam = VideoCamera()
-recordTime = str(3)
-
-
+global frameCount
+frameCount =0
 
 def gen(camera):
     while True:
         frame = cam.get_frame()
         yield(b'--frame\r\n'
               b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n\r\n')
+def frames(_time,_path,_camera):
+    i=0
+    frameCount=0
 
+    while i<(_time*60*30):
+        frame = cam.get_jpg()
+        cv2.imwrite("./pictures/"+str(_path)+"/"+str(_path)+str(i)+".jpg",frame)
+        i+=1
+        frameCount+=1
+    
 
 def livefeed(request):
     #sudo service nvargus-daemon restart#TODO Needs to be executed to be sure to restart the video daemon
@@ -83,11 +97,10 @@ def livefeed(request):
 
 
 
-# Create your views here.
 def PictureTakerView(request):
+
     page = PictureTaker(request.POST)
     ls = CatLearning.objects.all()
-
     context ={"liste":ls}
     
 
@@ -107,7 +120,6 @@ def PictureTakerView(request):
             response = redirect('/pictureTaker/')
             return response
 
-        #TODO 
     if(request.POST.get('bt_livefeed')):
         response = redirect('/livefeed/')
         return response
@@ -117,17 +129,42 @@ def PictureTakerView(request):
             CatLearning.objects.filter(name=nameCat).delete()
         except : 
             Print("Error")
+    if(request.POST.get('bt_setTime')):
+        request.session.flush()
+        request.session['time']=request.POST.get('tb_recTime')
+
+
     for item in ls : 
         if(request.POST.get("dynButton")==item.name):
             #TODO Inside the dyn btn, Todo  : ADD fodler and record
             CatLearning.objects.filter(name=item.name)
-            proc = Popen(['mkdir','./pictures/'+str(item.name)])
 
-            print(proc)
+            try:
+                proc = Popen(['rm','./pictures/'+str(item.name),'-r'])
+                print('folder removed')
+            except:
+                print("Nothing to remove")
+
+
+            try : 
+                proc = Popen(['mkdir','./pictures/'+str(item.name)])
+            except:
+                pass
+            #takes a picture and saves it
+            frames(float(request.session.get('time')),item.name,VideoCamera())
+
+
             response = redirect('/pictureTaker/')
             return response
-
+#Event when clicked on Delete
         if(request.POST.get(item.name)):
+            try:
+                proc = Popen(['rm','./pictures/'+str(item.name),'-r'])
+                print('folder removed')
+            except:
+                print("Nothing to remove")
+
+
             try :
                 CatLearning.objects.filter(name=item.name).delete()
                 response = redirect('/pictureTaker/')
@@ -136,8 +173,16 @@ def PictureTakerView(request):
             except : 
                 Print("Error could not delete category")
             
-
-
+    if(request.POST.get('bt_process')):
+        print("PROCESSING")
+        out = run(['python3','/home/pi/webInterface/conf/step00_augmentation.py'],shell=False,stdout=PIPE)
+        out = run(['python3','/home/pi/webInterface/conf/step01_resizefolder.py'],shell=False,stdout=PIPE)
+        proc = Popen(['zip','rawData.zip','cleaned'])
+        print("DONE")
+        #TODO redirect to new page
+    #context["frames"] =frameCount/int(math.floor(float(request.session.get('time')*60*30))) 
+    print(request.session.get('time'))
+    context["recTime"]=  request.session.get('time')
     return render(request, "pictureTaker.html",context)
 
 
@@ -147,6 +192,8 @@ def PictureTakerViewSecond(request):
     for item in CatLearning.objects.all():
         print(item.name)
     return render(request, "PictureTakerViewSecond.html",context)
+
+
 
 
 

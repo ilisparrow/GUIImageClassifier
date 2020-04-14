@@ -25,7 +25,8 @@ import glob
 
 resultFolder= glob.glob(join( "res","*.jpg"))
 modules = glob.glob(join( "pictures"))
-compRatio = int(input("Please input the output size division (2 would mean to divide the legnth and height by 2) : "))
+#compRatio = int(input("Please input the output size division (2 would mean to divide the legnth and height by 2) : "))
+compRatio = 4
 nbrClass = 0
 classes = []
 try : 

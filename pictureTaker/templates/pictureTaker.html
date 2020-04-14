@@ -31,14 +31,15 @@
         </p>
         <div>
         <input type="submit" class="btn" value="Add category" name="bt_addLearningCats">
-        <input type="submit" class="btn" value="Delete category" name="bt_delLearningCats">
         </div>
         </p>
         </p>
         </p>
-        <div>Please enter the time length you wish to record (the record time will be the same for every category): </div>
+        <div>Please enter the time length you wish to record in minutes (the record time will be the same for every category) :</p>For half a minutes please type '0.5' </div>
         </p>
-        <input type="text" value="" name="tb_recTime" size="5"/>
+        <input type="text" value="" name="tb_recTime" size="5"/> 
+        <input type="submit" class="btn" value="set Time" name="bt_setTime">
+
 
 
 
@@ -49,14 +50,22 @@
         <p></p>
         <p></p>
 </p>
-        <p>The recording will start when you click on every button :{recordTime}</p>
+        <p>The recording will start when you click on every button :  {{recTime}}  minutes</p>
          {% for item in liste %}
          <p>
-                <d>Category :</d> 
+                <d>Record :</d> 
                 <d><input type="submit" class="btn" name="dynButton" value={{item.name}}></d>
                 <d><input type="submit" class="btn" name="{{item.name}}" value="Delete {{item.name}}"></d>
         </p>
         {% endfor %}
+
+        <!-- <div>{{frames}} done.</div> -->
+
+        <p></p>
+        <p></p>
+        <p></p>   
+       
+        <input type="submit" class="btn" value="Validate and Process" name="bt_process">
 
        
         </form>

@@ -14,7 +14,7 @@ class CatLearning(models.Model):
     name = models.CharField(max_length = 200)   
     done = False 
 
-    # renames the instances of the model 
-    # with their title name 
-    def __str__(self): 
-        return self.name 
+ 
+class State(models.Model):
+    name = models.CharField(max_length = 200)   
+    timeRec = 2
