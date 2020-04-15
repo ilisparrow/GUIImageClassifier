@@ -78,8 +78,12 @@ def gen(camera):
 def frames(_time,_path,_camera):
     i=0
     frameCount=0
+    if _time > 5:
+        _time=5
+ #   elif _time<1:
+ #       _time=1
 
-    while i<(_time*60*30):
+    while i<(_time*60*30/4):
         frame = cam.get_jpg()
         cv2.imwrite("./pictures/"+str(_path)+"/"+str(_path)+str(i)+".jpg",frame)
         i+=1
@@ -89,6 +93,7 @@ def frames(_time,_path,_camera):
 def livefeed(request):
     #sudo service nvargus-daemon restart#TODO Needs to be executed to be sure to restart the video daemon
 
+    proc = Popen(['sudo','service','nvargus-daemon','restart'])
     stream = StreamingHttpResponse(gen(VideoCamera()), content_type="multipart/x-mixed-replace;boundary=frame")
     if not (stream == None):
         return stream
@@ -151,6 +156,7 @@ def PictureTakerView(request):
             except:
                 pass
             #takes a picture and saves it
+            proc = Popen(['sudo','service','nvargus-daemon','restart'])
             frames(float(request.session.get('time')),item.name,VideoCamera())
 
 
@@ -173,15 +179,17 @@ def PictureTakerView(request):
             except : 
                 Print("Error could not delete category")
             
+    if('bt_upload' in request.POST):
+        out = run(['python3','/home/svision/webInterface/conf/upload.py'],shell=False,stdout=PIPE)
     if(request.POST.get('bt_process')):
         print("PROCESSING")
-        out = run(['python3','/home/pi/webInterface/conf/step00_augmentation.py'],shell=False,stdout=PIPE)
-        out = run(['python3','/home/pi/webInterface/conf/step01_resizefolder.py'],shell=False,stdout=PIPE)
-        proc = Popen(['zip','rawData.zip','cleaned'])
+        out = run(['python3','/home/svision/webInterface/conf/step00_augmentation.py'],shell=False,stdout=PIPE)
+
+        out = run(['python3','/home/svision/webInterface/conf/step01_resizefolder.py'],shell=False,stdout=PIPE)
+        proc = Popen(['zip','rawData.zip','cleaned','-r'])
         print("DONE")
         #TODO redirect to new page
     #context["frames"] =frameCount/int(math.floor(float(request.session.get('time')*60*30))) 
-    print(request.session.get('time'))
     context["recTime"]=  request.session.get('time')
     return render(request, "pictureTaker.html",context)
 

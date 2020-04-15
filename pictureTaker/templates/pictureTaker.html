@@ -35,7 +35,8 @@
         </p>
         </p>
         </p>
-        <div>Please enter the time length you wish to record in minutes (the record time will be the same for every category) :</p>For half a minutes please type '0.5' </div>
+        <div>Please enter the time length you wish to record in minutes (the record time will be the same for every category) :
+        </p>For one and half a minute please type '1'.5'. The values should be between 1 and 5 </div>
         </p>
         <input type="text" value="" name="tb_recTime" size="5"/> 
         <input type="submit" class="btn" value="set Time" name="bt_setTime">
@@ -50,7 +51,7 @@
         <p></p>
         <p></p>
 </p>
-        <p>The recording will start when you click on every button :  {{recTime}}  minutes</p>
+        <p>The recording will start when you click on every button, for :  {{recTime}}  minutes</p>
          {% for item in liste %}
          <p>
                 <d>Record :</d> 
@@ -66,6 +67,7 @@
         <p></p>   
        
         <input type="submit" class="btn" value="Validate and Process" name="bt_process">
+        <input type="submit" class="btn" value="Upload" name="bt_upload">
 
        
         </form>

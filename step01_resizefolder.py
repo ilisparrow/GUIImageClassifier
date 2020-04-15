@@ -29,6 +29,8 @@ modules = glob.glob(join( "pictures"))
 compRatio = 4
 nbrClass = 0
 classes = []
+
+proc = Popen(['rm','cleaned','-r'])
 try : 
     os.mkdir("cleaned")#To check
 except : 
