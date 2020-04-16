@@ -9,6 +9,7 @@ import matplotlib.pyplot as plt
 import matplotlib
 import numpy as np
 import os
+from subprocess import Popen
 
 import skimage
 from skimage import data
@@ -30,7 +31,7 @@ compRatio = 4
 nbrClass = 0
 classes = []
 
-proc = Popen(['rm','cleaned','-r'])
+proc = Popen(['rm','cleaned/*','-r'])
 try : 
     os.mkdir("cleaned")#To check
 except : 
