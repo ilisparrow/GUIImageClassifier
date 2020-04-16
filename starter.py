@@ -1,6 +1,11 @@
 from subprocess import run,PIPE,Popen
 import sys
+from os.path import expanduser
+import datetime
 
+file = open(expanduser("~") + '/iboDigital.log', 'a')
+file.write("It worked!\n" + str(datetime.datetime.now()))
+file.close()
 
 
 #The first step is to deactive any hot spot
