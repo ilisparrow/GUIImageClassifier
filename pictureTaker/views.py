@@ -16,7 +16,7 @@ from django.http import HttpResponse
 import math
 
 
-
+proc = Popen(['sudo','service','nvargus-daemon','restart'])
 def gstreamer_pipeline(
     capture_width=1280,
     capture_height=720,
@@ -58,8 +58,7 @@ class VideoCamera(object):
 
     def get_jpg(self):
         image = self.frame
-        ret, jpg = cv2.imencode('.jpg', image)
-        return image#Was jpg 
+        return image 
 
     def update(self):
         while True:
@@ -93,8 +92,8 @@ def frames(_time,_path,_camera):
 def livefeed(request):
     #sudo service nvargus-daemon restart#TODO Needs to be executed to be sure to restart the video daemon
 
-    proc = Popen(['sudo','service','nvargus-daemon','restart'])
-    stream = StreamingHttpResponse(gen(VideoCamera()), content_type="multipart/x-mixed-replace;boundary=frame")
+    #proc = Popen(['sudo','service','nvargus-daemon','restart'])
+    stream = StreamingHttpResponse(gen(cam), content_type="multipart/x-mixed-replace;boundary=frame")
     if not (stream == None):
         return stream
     else :
@@ -107,7 +106,9 @@ def PictureTakerView(request):
     page = PictureTaker(request.POST)
     ls = CatLearning.objects.all()
     context ={"liste":ls}
-    
+    #context["OutMessage"]="NA"
+    #context["messageColor"]=""
+
 
     nbInputs=0
     if(request.POST.get('bt_addLearningCats')):
@@ -117,26 +118,35 @@ def PictureTakerView(request):
             inputValidBool = True
             print("Input valid")
         except:
-            print("Input excpected")
+            pass
 
         if inputValidBool and not(nameCat == '') :
             ajout = CatLearning(name=nameCat)
             ajout.save()
-            response = redirect('/pictureTaker/')
-            return response
+            context["OutMessage"]="Category added."
+            context["messageColor"]="green"
+            print(context["OutMessage"])
+            #response = redirect('/pictureTaker/')
+            #return response
+        else: 
+            context["OutMessage"]="input Incorrect"
+            context["messageColor"]="red"
 
     if(request.POST.get('bt_livefeed')):
         response = redirect('/livefeed/')
         return response
+
     if(request.POST.get('bt_delLearningCats')):
         try :
             nameCat = request.POST.get('tb_LearningCats')
             CatLearning.objects.filter(name=nameCat).delete()
         except : 
-            Print("Error")
+            Print("Error")#TODO Verifier supp dossier
     if(request.POST.get('bt_setTime')):
         request.session.flush()
         request.session['time']=request.POST.get('tb_recTime')
+        context["OutMessage"]="Record time updated"
+        context["messageColor"]="green"
 
 
     for item in ls : 
@@ -156,12 +166,13 @@ def PictureTakerView(request):
             except:
                 pass
             #takes a picture and saves it
-            proc = Popen(['sudo','service','nvargus-daemon','restart'])
-            frames(float(request.session.get('time')),item.name,VideoCamera())
+            #proc = Popen(['sudo','service','nvargus-daemon','restart'])
+            frames(float(request.session.get('time')),item.name,cam)
+            context["OutMessage"]="Pictures captured"
+            context["messageColor"]="green"
 
-
-            response = redirect('/pictureTaker/')
-            return response
+            #response = redirect('/pictureTaker/')
+            #return response
 #Event when clicked on Delete
         if(request.POST.get(item.name)):
             try:
@@ -173,23 +184,37 @@ def PictureTakerView(request):
 
             try :
                 CatLearning.objects.filter(name=item.name).delete()
-                response = redirect('/pictureTaker/')
-                return response
+                #response = redirect('/pictureTaker/')
+                context["OutMessage"]="Category deleted successfully"
+                context["messageColor"]="green"
+                #return response
 
             except : 
                 Print("Error could not delete category")
+                context["OutMessage"]="Error Deleting the category"
+                context["messageColor"]="red"
             
     if('bt_upload' in request.POST):
         out = run(['python3','/home/svision/webInterface/conf/upload.py'],shell=False,stdout=PIPE)
+        print(out.stdout.decode('utf-8'))
+        if "successful" in out.stdout.decode('utf-8') : 
+            context["OutMessage"]="Upload successful"
+            context["messageColor"]="green"
+        else:
+            context["OutMessage"]="Upload failed, please try again."
+            context["messageColor"]="red"
+
+
     if(request.POST.get('bt_process')):
-        print("PROCESSING")
+        print("Data processing")
         out = run(['python3','/home/svision/webInterface/conf/step00_augmentation.py'],shell=False,stdout=PIPE)
 
         out = run(['python3','/home/svision/webInterface/conf/step01_resizefolder.py'],shell=False,stdout=PIPE)
         proc = Popen(['zip','rawData.zip','cleaned','-r'])
         print("DONE")
-        #TODO redirect to new page
-    #context["frames"] =frameCount/int(math.floor(float(request.session.get('time')*60*30))) 
+        context["OutMessage"]="Data Processing done, you can upload the files"
+        context["messageColor"]="green"
+
     context["recTime"]=  request.session.get('time')
     return render(request, "pictureTaker.html",context)
 

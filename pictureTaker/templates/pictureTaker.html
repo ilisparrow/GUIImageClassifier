@@ -8,6 +8,20 @@
         <title>Document</title>
 </head>
 <body>
+        <script type="text/javascript">
+                setInterval(function(){
+                var textToprint = "{{OutMessage}}";
+                if("{{messageColor}}"=="red"){var result = textToprint.fontcolor("red");}
+                else if("{{messageColor}}"=="green"){var result = textToprint.fontcolor("green");}
+                else{var result = textToprint.fontcolor("black");}
+                document.getElementById("outputMessage").innerHTML = result;},1000)
+        </script>
+        <p  id="outputMessage"></p> 
+
+        <p></p>
+        <p></p>
+        <p></p>
+       
         {{  page }}
 
         <form action=# method="post" target="_blank">
@@ -27,11 +41,7 @@
         </p>
         <input type="text" value="" name="tb_LearningCats" />
 
-        </p>
-        </p>
-        <div>
         <input type="submit" class="btn" value="Add category" name="bt_addLearningCats">
-        </div>
         </p>
         </p>
         </p>
@@ -68,8 +78,9 @@
        
         <input type="submit" class="btn" value="Validate and Process" name="bt_process">
         <input type="submit" class="btn" value="Upload" name="bt_upload">
-
+        
        
+
         </form>
 </body>
 </html>
