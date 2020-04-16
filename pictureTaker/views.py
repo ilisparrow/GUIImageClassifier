@@ -195,7 +195,7 @@ def PictureTakerView(request):
                 context["messageColor"]="red"
             
     if('bt_upload' in request.POST):
-        out = run(['python3','/home/svision/webInterface/conf/upload.py'],shell=False,stdout=PIPE)
+        out = run(['python3','/home/svision/webInterface/conf/step02_upload.py'],shell=False,stdout=PIPE)
         print(out.stdout.decode('utf-8'))
         if "successful" in out.stdout.decode('utf-8') : 
             context["OutMessage"]="Upload successful"
