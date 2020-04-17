@@ -11,7 +11,11 @@
 		{% csrf_token %}
 		{{ form }}
 		<button type ="submit" name="bt_next_wifi">Next</button>
-		<button type ="submit" name="bt_skip">Next</button>
+	</form>
+	<p></p>
+	<form action=# method="post">
+		{% csrf_token %}
+		<button type ="submit" name="bt_skip">Skip step</button>
 	</form>
 </body>
 </html>

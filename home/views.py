@@ -10,6 +10,9 @@ import sys
 def homePageView(request):
     
     #if request.method =='POST':
+    if('bt_skip' in request.POST):
+        response = redirect('/pictureTaker/')#Demo
+        return response#Demo
     if True:
         form = WifiForm(request.POST)
 
@@ -30,9 +33,6 @@ def homePageView(request):
             
                 response = redirect('/pictureTaker/')#Demo
                 return response#Demo
-        if('bt_skip' in request.POST):
-            response = redirect('/pictureTaker/')#Demo
-            return response#Demo
     form = WifiForm()
     return render(request,'form.html',{'form':form})
 # Create your views here.

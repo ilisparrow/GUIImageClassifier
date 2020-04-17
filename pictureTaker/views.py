@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from __future__ import unicode_literals
+/bin/bash: :wq: command not found
 
 from django.shortcuts import render,redirect
 from .models import PictureTaker
@@ -82,7 +82,7 @@ def frames(_time,_path,_camera):
  #   elif _time<1:
  #       _time=1
 
-    while i<(_time*60*30/4):
+    while i<(_time*60*(10/3)*30/4):
         frame = cam.get_jpg()
         cv2.imwrite("./pictures/"+str(_path)+"/"+str(_path)+str(i)+".jpg",frame)
         i+=1
@@ -90,9 +90,7 @@ def frames(_time,_path,_camera):
     
 
 def livefeed(request):
-    #sudo service nvargus-daemon restart#TODO Needs to be executed to be sure to restart the video daemon
 
-    #proc = Popen(['sudo','service','nvargus-daemon','restart'])
     stream = StreamingHttpResponse(gen(cam), content_type="multipart/x-mixed-replace;boundary=frame")
     if not (stream == None):
         return stream
@@ -100,14 +98,13 @@ def livefeed(request):
         return HttpResponse('Wainting for device')
 
 
-
 def PictureTakerView(request):
 
     page = PictureTaker(request.POST)
     ls = CatLearning.objects.all()
     context ={"liste":ls}
-    #context["OutMessage"]="NA"
-    #context["messageColor"]=""
+
+    context["OutMessage"]=''
 
 
     nbInputs=0
@@ -123,14 +120,15 @@ def PictureTakerView(request):
         if inputValidBool and not(nameCat == '') :
             ajout = CatLearning(name=nameCat)
             ajout.save()
-            context["OutMessage"]="Category added."
-            context["messageColor"]="green"
+            request.session["OutMessage"]="Category added."
+            request.session["messageColor"]="green"
             print(context["OutMessage"])
-            #response = redirect('/pictureTaker/')
-            #return response
+            response = redirect('/pictureTaker/')
+            return response
+
         else: 
-            context["OutMessage"]="input Incorrect"
-            context["messageColor"]="red"
+            request.session["OutMessage"]="Input incorrect"
+            request.session["messageColor"]="red"
 
     if(request.POST.get('bt_livefeed')):
         response = redirect('/livefeed/')
@@ -143,15 +141,14 @@ def PictureTakerView(request):
         except : 
             Print("Error")#TODO Verifier supp dossier
     if(request.POST.get('bt_setTime')):
-        request.session.flush()
+        #request.session.flush()
         request.session['time']=request.POST.get('tb_recTime')
-        context["OutMessage"]="Record time updated"
-        context["messageColor"]="green"
+        request.session["OutMessage"]="New record time set correctly"
+        request.session["messageColor"]="green"
 
 
     for item in ls : 
         if(request.POST.get("dynButton")==item.name):
-            #TODO Inside the dyn btn, Todo  : ADD fodler and record
             CatLearning.objects.filter(name=item.name)
 
             try:
@@ -168,11 +165,13 @@ def PictureTakerView(request):
             #takes a picture and saves it
             #proc = Popen(['sudo','service','nvargus-daemon','restart'])
             frames(float(request.session.get('time')),item.name,cam)
-            context["OutMessage"]="Pictures captured"
-            context["messageColor"]="green"
 
-            #response = redirect('/pictureTaker/')
-            #return response
+            request.session["OutMessage"]="Pictures captured"
+            request.session["messageColor"]="green"
+
+            response = redirect('/pictureTaker/')
+            return response
+
 #Event when clicked on Delete
         if(request.POST.get(item.name)):
             try:
@@ -184,38 +183,53 @@ def PictureTakerView(request):
 
             try :
                 CatLearning.objects.filter(name=item.name).delete()
-                #response = redirect('/pictureTaker/')
-                context["OutMessage"]="Category deleted successfully"
-                context["messageColor"]="green"
-                #return response
+                request.session["OutMessage"]="Category deleted successfully"
+                request.session["messageColor"]="green"
+
+                response = redirect('/pictureTaker/')
+                return response
 
             except : 
                 Print("Error could not delete category")
-                context["OutMessage"]="Error Deleting the category"
-                context["messageColor"]="red"
+                request.session["OutMessage"]="Error Deleting the category"
+                request.session["messageColor"]="red"
+
             
     if('bt_upload' in request.POST):
+        proc = Popen(['rm','/home/svision/webInterface/conf/rawData.zip'])
         out = run(['python3','/home/svision/webInterface/conf/step02_upload.py'],shell=False,stdout=PIPE)
         print(out.stdout.decode('utf-8'))
         if "successful" in out.stdout.decode('utf-8') : 
-            context["OutMessage"]="Upload successful"
-            context["messageColor"]="green"
+
+            request.session["OutMessage"]="Upload successful"
+            request.session["messageColor"]="green"
+
+            response = redirect('/pictureTaker/')
+            return response
+
         else:
-            context["OutMessage"]="Upload failed, please try again."
-            context["messageColor"]="red"
+
+            request.session["OutMessage"]="Upload failed, please try again."
+            request.session["messageColor"]="red"
 
 
     if(request.POST.get('bt_process')):
         print("Data processing")
-        out = run(['python3','/home/svision/webInterface/conf/step00_augmentation.py'],shell=False,stdout=PIPE)
 
+        out = run(['python3','/home/svision/webInterface/conf/step00_augmentation.py'],shell=False,stdout=PIPE)
         out = run(['python3','/home/svision/webInterface/conf/step01_resizefolder.py'],shell=False,stdout=PIPE)
         proc = Popen(['zip','rawData.zip','cleaned','-r'])
-        print("DONE")
-        context["OutMessage"]="Data Processing done, you can upload the files"
-        context["messageColor"]="green"
 
+        request.session["OutMessage"]="Data Processing done, you can upload the files"
+        request.session["messageColor"]="green"
+
+        response = redirect('/pictureTaker/')
+        return response
+
+    context["OutMessage"]=request.session.get("OutMessage")
+    context["messageColor"]=request.session.get("messageColor")
     context["recTime"]=  request.session.get('time')
+
     return render(request, "pictureTaker.html",context)
 
 

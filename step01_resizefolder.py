@@ -20,6 +20,7 @@ from os.path import dirname, basename, isfile, join
 from skimage.filters import threshold_otsu
 from skimage.io import imsave
 import glob
+import time
 
 #DONE :TH files are read and iterated over 
 #TODO :create the folders
@@ -31,7 +32,10 @@ compRatio = 4
 nbrClass = 0
 classes = []
 
-proc = Popen(['rm','cleaned/*','-r'])
+proc = Popen(['rm','-r','cleaned'])
+#proc = Popen(['pwd'])
+#print(proc)
+time.sleep(2)
 try : 
     os.mkdir("cleaned")#To check
 except : 
