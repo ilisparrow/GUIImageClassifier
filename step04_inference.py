@@ -72,7 +72,9 @@ print("vefore capture")
 #video = cv2.VideoCapture(0)
 avgTime=[]
 if video.isOpened():
-    while True :
+    i=0
+    while i<10000 :
+        i+=1
         ret_val,img = video.read()
         #Transforms, then GBR to RGB, to pytorch tensor then to PIL Image 
         img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)#Might be unecessary

@@ -46,8 +46,7 @@ def run_sample():
         block_blob_service = BlockBlobService(account_name='iliasstorage', account_key='oAbr96255xKDpNb+Jjvfj9etDSOPqc5tmUouM1QOFhsnLq/BJek+DZFpIjZ47N7Um7rKXwNshKFqulLE3ibJRA==')
 
         # Create a container called 'quickstartblobs'.
-        print(str(time.time()))
-        container_name ='fromjetson'
+        container_name ='fromjetson'+str(time.time()).split('.')[0]
         block_blob_service.create_container(container_name)
 
         # Set the permission so the blobs are public.

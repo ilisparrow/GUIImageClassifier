@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-/bin/bash: :wq: command not found
 
 from django.shortcuts import render,redirect
 from .models import PictureTaker

@@ -25,10 +25,14 @@ def homePageView(request):
                 pwd= form.cleaned_data['password']
 
                 print('-------------------------------------')
- #               proc = Popen (['nmcli', 'd','|', 'grep', '-o', '\'Ho.*\'','|', 'xargs', '-t', '-n1', 'sudo', 'nmcli', 'connection', 'down'])
- #maybe write the IDs to a file so that the server can shutdown
-                proc = Popen(['sudo','nmcli','dev','wifi','connect',wifiName,"password",pwd])#TODO : SHOW THE USER THE ERROR IF NECESSARY
-                print(proc)
+                f = open("/home/svision/wifi.mdp", "w")
+                f.write(wifiName+"\n"+pwd)
+                f.close()
+
+                #open and read the file after the appending:
+                #proc = Popen(['sudo','nmcli','dev','wifi','connect',wifiName,"password",pwd])#TODO : SHOW THE USER THE ERROR IF NECESSARY
+                proc = Popen(['sudo','reboot','-h','now'])#Reboots the software to connect to wifi
+                #print(proc)
    
             
                 response = redirect('/pictureTaker/')#Demo
