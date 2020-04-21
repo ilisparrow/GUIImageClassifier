@@ -21,7 +21,7 @@ urlpatterns = [
     url(r'^admin/', admin.site.urls),
     path('',include('home.urls')),
     path(r'pictureTaker/',ptViews.PictureTakerView),
-    path(r'PictureTakerViewSecond/',ptViews.PictureTakerViewSecond),
+    path(r'predict/',ptViews.PictureTakerViewSecond),
     path(r'livefeed/',ptViews.livefeed),
     path(r'dataProcessing/',include('dataProcessing.urls')),
 
