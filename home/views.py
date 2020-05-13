@@ -13,6 +13,12 @@ def homePageView(request):
     if('bt_skip' in request.POST):
         response = redirect('/pictureTaker/')#Demo
         return response#Demo
+    if('bt_reset' in request.POST):
+
+        proc = Popen(['sudo','rm','/home/svision/wifi.mdp'])#Deletes the wifiy
+        proc = Popen(['sudo','rm','/home/svision/wevInterface/conf/rawData.zip'])#Deletes the wifiy
+        proc = Popen(['sudo','rm','/home/svision/wevInterface/conf/'])#Deletes the wifiy
+        return response#Demo
     if True:
         form = WifiForm(request.POST)
 

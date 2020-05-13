@@ -13,6 +13,16 @@ from django.views.decorators import gzip
 from django.http import StreamingHttpResponse
 from django.http import HttpResponse 
 import math
+import torch
+from torchvision import datasets, models, transforms
+import torch.nn as nn
+from torch.utils import data
+import time
+import os
+import glob
+import numpy as np
+import PIL.Image as Image
+
 
 
 proc = Popen(['sudo','service','nvargus-daemon','restart'])
@@ -195,7 +205,6 @@ def PictureTakerView(request):
 
             
     if('bt_upload' in request.POST):
-        proc = Popen(['rm','/home/svision/webInterface/conf/rawData.zip'])
         out = run(['python3','/home/svision/webInterface/conf/step02_upload.py'],shell=False,stdout=PIPE)
         print(out.stdout.decode('utf-8'))
         if "successful" in out.stdout.decode('utf-8') : 
@@ -215,6 +224,7 @@ def PictureTakerView(request):
     if(request.POST.get('bt_process')):
         print("Data processing")
 
+        proc = Popen(['rm','/home/svision/webInterface/conf/rawData.zip'])
         out = run(['python3','/home/svision/webInterface/conf/step00_augmentation.py'],shell=False,stdout=PIPE)
         out = run(['python3','/home/svision/webInterface/conf/step01_resizefolder.py'],shell=False,stdout=PIPE)
         proc = Popen(['zip','rawData.zip','cleaned','-r'])
@@ -233,11 +243,59 @@ def PictureTakerView(request):
 
 
 def PictureTakerViewSecond(request):
-    context ={}
-    #ls = CatLearning(request.POST)
-    for item in CatLearning.objects.all():
-        print(item.name)
-    return render(request, "PictureTakerViewSecond.html",context)
+    try:
+        cam.video.release()
+    except :
+        print("No camera to release")
+    class_names =['Good','Bad']
+    model_ft = models.resnet18(pretrained=True)
+    num_ftrs = model_ft.fc.in_features
+    model_ft.fc = nn.Linear(num_ftrs, len(class_names))
+    device = torch.device("cuda")
+    model_ft = model_ft.to(device)
+
+
+    model_ft.load_state_dict(torch.load('content.model'))
+    model_ft = model_ft.to(device)
+    model_ft.eval()
+
+    transform = transforms.Compose([
+        transforms.Resize(256),
+        transforms.CenterCrop(224),
+        transforms.ToTensor(),
+        transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])])
+    
+    gstreamer_pipeline(flip_method=0)
+    video = cv2.VideoCapture(gstreamer_pipeline(flip_method=0), cv2.CAP_GSTREAMER)
+    avgTime=[]
+    if video.isOpened():
+        i=0
+        while i<10 :
+        #if True:
+            i+=1
+            ret_val,img = video.read()
+            #Transforms, then GBR to RGB, to pytorch tensor then to PIL Image 
+            img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)#Might be unecessary
+            img = Image.fromarray(img)
+            img_t = transform(img)
+            batch_t = torch.unsqueeze(img_t, 0)
+        
+
+            seconds = time.time()
+
+            output = model_ft(batch_t.to('cuda'))
+            _, preds = torch.max(output, 1)
+
+            avgTime.append(time.time()-seconds)
+            print(class_names[preds])
+            request.session["pred"]=class_names[preds]
+        #    try : 
+                #ret, jpeg = cv2.imencode('.jpg', img)
+            #except:
+                #pass
+
+    print(1/(np.sum(avgTime[1:])/len(avgTime[1:])))
+    return render(request, "PictureTakerViewSecond.html",{"pred":request.session.get('pred')})
 
 
 

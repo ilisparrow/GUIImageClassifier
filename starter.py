@@ -1,13 +1,43 @@
+#!/usr/bin/env python3
 from subprocess import run,PIPE,Popen
+import os
 import sys
 from os.path import expanduser
 import datetime
 import time
 
+
 time.sleep(30)#To put back
+
+
+
+
+def launchServer():
+    os.environ.setdefault("DJANGO_SETTINGS_MODULE", "conf.settings")
+    try:
+        from django.core.management import execute_from_command_line
+    except ImportError:
+        # The above import may fail for some other reason. Ensure that the
+        # issue is really that Django is missing to avoid masking other
+        # exceptions on Python 2.
+        try:
+            import django
+        except ImportError:
+            raise ImportError(
+                "Couldn't import Django. Are you sure it's installed and "
+                "available on your PYTHONPATH environment variable? Did you "
+                "forget to activate a virtual environment?"
+            )
+        raise
+    #execute_from_command_line(['manage.py','runserver',str(str(_ipAdress)+':'+str(8000))])
+    execute_from_command_line(['manage.py','runserver','0.0.0.0:8000'])
+
+
+
+
 log= open('/home/svision/iboDigital.log', 'a')
 
-log.write("It worked!\n" + str(datetime.datetime.now())+"\n")
+log.write("Nex launch :\n" + str(datetime.datetime.now())+"\n")
 
 
 #The first step is to deactive any hot spot
@@ -32,21 +62,24 @@ if "connected" in stringOuput:
     #If so, start the server
 
 
-    out = run(['ifconfig'],shell=False,stdout=PIPE)
-    outServer = out.stdout.decode('utf-8')
+    #out = run(['ifconfig'],shell=False,stdout=PIPE)
+    '''    outServer = out.stdout.decode('utf-8')
     ipAdress = ''
     outServerWordList = outServer.split()
     i = 0
 
     for word in outServerWordList:
         i+=1
-        if 'inet' in word:
+        if '192' in word:
             ipAdress = outServerWordList[i]
             break;
-    log.write("The Ip adress for launching the server  is :"+ ipAdress)
-    out = run(['python3', '/home/svision/webInterface/conf/manage.py', 'runserver', ipAdress+':'+str(8000)],shell=False,stdout=PIPE)
-    log.write(str(datetime.datetime.now())+":"+out.stdout.decode('utf-8'))
-    print(str(datetime.datetime.now())+":"+out.stdout.decode('utf-8'))
+    '''
+    log.write("\n Launching the server")
+    #out = run(['python3', '/home/svision/webInterface/conf/manage.py', 'runserver', ipAdress+':'+str(8000)],shell=True,stdout=PIPE)
+    #out = run(str('python3 /home/svision/webInterface/conf/manage.py runserver '+ ipAdress+':'+str(8000)),shell=True,stdout=PIPE)
+    #out = run(['/home/svision/webInterface/conf/test.bash'],shell=True,stdout=PIPE)
+    launchServer()
+    log.write('\n'+str(datetime.datetime.now())+":Server Launched")
 
 
 
@@ -95,10 +128,9 @@ else:
             if 'inet' in word:
                 ipAdress = outServerWordList[i]
                 break;
-        log.write("The Ip adress for launching the server  is :"+ ipAdress)
-        out = run(['python3', '/home/svision/webInterface/conf/manage.py', 'runserver', ipAdress+':'+str(8000)],shell=False,stdout=PIPE)
-        log.write(str(datetime.datetime.now())+":"+out.stdout.decode('utf-8'))
-        print(str(datetime.datetime.now())+":"+out.stdout.decode('utf-8'))
+        log.write("The Ip adress for launching the server  is : "+ ipAdress)
+        launchServer(ipAdress)
+        log.write('\n'+str(datetime.datetime.now())+":Server Launched")
 
 
 
@@ -111,6 +143,7 @@ else:
         
 
         #Once the Hotspot is started, we launch the server
+        '''
         out = run(['ifconfig'],shell=False,stdout=PIPE)
         outServer = out.stdout.decode('utf-8')
         ipAdress = ''
@@ -122,10 +155,10 @@ else:
             if 'inet' in word:
                 ipAdress = outServerWordList[i]
                 break;
-        log.write("The Ip adress for launching the server  is :"+ ipAdress)
-        out = run(['python3', '/home/svision/webInterface/conf/manage.py', 'runserver', ipAdress+':'+str(8000)],shell=False,stdout=PIPE)
-        log.write(str(datetime.datetime.now())+":"+out.stdout.decode('utf-8'))
-        print(str(datetime.datetime.now())+":"+out.stdout.decode('utf-8'))
+        '''
+        log.write("Launching the server : ")
+        launchServer()
+        log.write('\n'+str(datetime.datetime.now())+":Server Launched")
 
 
 log.close()
