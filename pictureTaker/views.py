@@ -109,10 +109,30 @@ def livefeed(request):
 
 def PictureTakerView(request):
 
+    IPs=[]
+    i = 0
+    try :
+        ipsFile =  open("ipadresses.save","r")
+        line = ipsFile.readline()
+        IPs.append(line)
+        i+=1;
+
+        while line:
+            line =ipsFile.readline() 
+            IPs.append(line)
+            i+=1
+        IPs.pop()
+
+        ipsFile.close()
+    except:
+        pass
+
+
+
     page = PictureTaker(request.POST)
     ls = CatLearning.objects.all()
     context ={"liste":ls}
-
+    context["IPs"]=IPs
     context["OutMessage"]=''
 
 
@@ -303,3 +323,4 @@ def PictureTakerViewSecond(request):
 
 
 
+#TODO : USE THE DYNAMIC IP ADRESS

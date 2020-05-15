@@ -7,7 +7,7 @@ import datetime
 import time
 
 
-time.sleep(30)#To put back
+#time.sleep(30)#To put back
 
 
 
@@ -62,23 +62,28 @@ if "connected" in stringOuput:
     #If so, start the server
 
 
-    #out = run(['ifconfig'],shell=False,stdout=PIPE)
-    '''    outServer = out.stdout.decode('utf-8')
-    ipAdress = ''
-    outServerWordList = outServer.split()
-    i = 0
 
-    for word in outServerWordList:
-        i+=1
-        if '192' in word:
-            ipAdress = outServerWordList[i]
-            break;
-    '''
     log.write("\n Launching the server")
-    #out = run(['python3', '/home/svision/webInterface/conf/manage.py', 'runserver', ipAdress+':'+str(8000)],shell=True,stdout=PIPE)
-    #out = run(str('python3 /home/svision/webInterface/conf/manage.py runserver '+ ipAdress+':'+str(8000)),shell=True,stdout=PIPE)
-    #out = run(['/home/svision/webInterface/conf/test.bash'],shell=True,stdout=PIPE)
-    launchServer()
+    
+    
+    
+    #launchServer()
+    
+    if True:
+        modelFile =  open("modelloaded.save","r")
+        line = modelFile.readline()
+        print(line)
+        out = run(['python', '/home/svision/webInterface/conf/inferencescripts/infenre.py',line],shell=False,stdout=PIPE)
+        print(out.stdout.decode('utf-8'))
+
+        while line:
+            line =modelFile.readline() 
+            out = run(['python', '/home/svision/webInterface/conf/inferencescripts/infenre.py',line],shell=False,stdout=PIPE)
+            print(out.stdout.decode('utf-8'))
+
+        modelFile.close()
+
+
     log.write('\n'+str(datetime.datetime.now())+":Server Launched")
 
 

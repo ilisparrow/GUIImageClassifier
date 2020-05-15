@@ -7,17 +7,43 @@
 	<title>Document</title>
 </head>
 <body>
+
+	<!--
 	<div>This will restart the device and connect to the wifi</div>
 	<form action=# method="post">
 		{% csrf_token %}
 		{{ form }}
 		<button type ="submit" name="bt_next_wifi">Next</button>
 	</form>
+	-->
+<h1>Welcome to the S-VISION setup page</h1>	
+<h3>We will guide you through this process</h3>
 	<p></p>
 	<form action=# method="post">
 		{% csrf_token %}
+		<div>
+		<div>Please add the IP adresses of your Wifi Cameras : <div>
+		</p>
+        <input type="text" value="" name="tb_ip" />
+		<button type ="submit" name="bt_camera">Add IP adress</button>
+	</p>
+	    {% for item in liste %}
+         <p>
+                {{item.name}}
+                <d><input type="submit" class="btn" name="{{item.name}}" value="Remove : {{item.name}}"></d>
+                <d><input type="submit" class="btn" name="bt_goto" value="Go to : {{item.name}}"></d>
+        </p>
+		{% endfor %}
+			
+
+		</div>
+		<button type ="submit" name="bt_next">Next</button>
+	<p></p>
+	</p>
 		<button type ="submit" name="bt_skip">Skip step</button>
-		<button type ="submit" name="bt_reset">RESET</button>This will reset everything, delete the model, the pictures, the passwords
+		</p>
+		<button type ="submit" name="bt_reset">RESET</button> ATTENTION : This will reset everything, delete the model, the pictures, the passwords
+
 	</form>
 </body>
 </html>
