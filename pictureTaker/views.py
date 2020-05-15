@@ -4,6 +4,7 @@ from django.shortcuts import render,redirect
 from .models import PictureTaker
 from .models import CatLearning
 from .models import State
+from home.models import Cameras
 from subprocess import run,PIPE,Popen
 from os.path import dirname, basename, isfile, join
 import cv2 as cv2
@@ -22,7 +23,7 @@ import os
 import glob
 import numpy as np
 import PIL.Image as Image
-
+import csv
 
 
 proc = Popen(['sudo','service','nvargus-daemon','restart'])
@@ -254,6 +255,60 @@ def PictureTakerView(request):
 
         response = redirect('/pictureTaker/')
         return response
+
+
+    ls = Cameras.objects.all()
+
+    if(request.POST.get('bt_save')):
+        
+        for item in ls : 
+            print("is it done ?",item.done)
+            print("item name is : ",item.name)
+            print("request post : ",request.POST.get("select"))
+
+            if((str(item.name) in request.POST.get("select"))):
+                #THIS SHOUDL HAPPEN ONCE THE MMODEL WAS DOWNLOADED SUCCESFULLY
+                Cameras.objects.filter(name=item.name).update(done=True) 
+                print("Should have changed the value")
+        
+        '''
+        with open('downloaded_models.csv', newline='') as csvfile:
+            print('aaaaaaaaaaaaaaaaaaaaaaaaaaaaa')
+            spamreader = csv.reader(csvfile, delimiter=' ', quotechar='|')
+            for row in spamreader:
+                print(request.POST.get("select"))
+                print(row[0])
+                if (str(row[0]) in str(request.POST.get("select"))):
+                    print("Already in the list")
+                else : 
+        '''            #Add to the list(spamreader)
+
+                    #Write in the file downloadedmodels.csv
+                    #Check if download of model is a succes
+                    #DOwnload the model
+
+
+
+    if(request.POST.get('bt_remove')):
+        with open('downloaded_models.csv', newline='') as csvfile:
+            print('aaaaaaaaaaaaaaaaaaaaaaaaaaaaa')
+            spamreader = csv.reader(csvfile, delimiter=' ', quotechar='|')
+            for row in spamreader:
+                print(request.POST.get("select"))
+                print(row[0])
+                if (str(row[0]) in str(request.POST.get("select"))):
+                    print("THIS IS A MIRACLE")
+                    spamreader.remove(row)
+
+            f= open("downloaded_models.csv","w+")
+            for i in spamreader:
+                f.write(i[0])
+                f.write("\n")
+
+            f.close() 
+                    #Save the new CSV
+                    #REMOVE from the dtb(django) as well
+                    
 
     context["OutMessage"]=request.session.get("OutMessage")
     context["messageColor"]=request.session.get("messageColor")

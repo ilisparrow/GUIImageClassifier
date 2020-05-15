@@ -1,5 +1,8 @@
 #!/usr/bin/env python
+import csv
+'''
 import os
+
 import sys
 
 def launchServer():
@@ -21,3 +24,12 @@ def launchServer():
         raise
     execute_from_command_line(['manage.py','runserver','192.168.0.188:8000'])
 launchServer()
+'''
+
+
+
+with open('downloaded_models.csv', newline='') as csvfile:
+         print('aaaaaaaaaaaaaaaaaaaaaaaaaaaaa')
+         spamreader = csv.reader(csvfile, delimiter=' ', quotechar='|')
+         for row in spamreader:
+             print(row)

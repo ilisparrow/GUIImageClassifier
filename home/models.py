@@ -5,7 +5,6 @@ from django.db import models
 
 
 class Cameras(models.Model):
+    done = models.BooleanField(default=False) 
     name = models.CharField(max_length = 200)   
-    ip = models.CharField(max_length = 200)   
-    done = False 
 # Create your models here.
